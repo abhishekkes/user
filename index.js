@@ -4,9 +4,14 @@ const cors = require("cors");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+app.use(cors());
 app.use(cors({ origin: "http://localhost:5173" }));
 
 app.use(cors({ origin: "*" }));
+
+// Enable CORS for all routes
+
+app.use(express.json()); // Parse incoming JSON requests
 
 // Sample users data (20 users)
 const users = [
@@ -155,6 +160,26 @@ const users = [
 // Endpoint to retrieve all users
 app.get("/api/users", (req, res) => {
   res.json(users);
+});
+
+// Login endpoint
+app.post("/api/login", (req, res) => {
+  const { username, password } = req.body;
+
+  // Find user with matching credentials
+  const user = users.find(
+    (u) => u.username === username && u.password === password
+  );
+
+  if (user) {
+    // If user is found, send success response
+    res.json({ success: true, message: "Login successful" });
+  } else {
+    // If user is not found, send error response
+    res
+      .status(401)
+      .json({ success: false, message: "Invalid username or password" });
+  }
 });
 
 // Start server
